@@ -27,28 +27,28 @@ public class ProductosController {
         return new ResponseEntity<>(productosService.catalogo(), HttpStatus.OK);
     }
 
-    @GetMapping(value = "productos/{categoria}")
-    public ResponseEntity<Flux<Producto>> productosCategoria(@PathVariable("categoria") String categoria) {
+    @GetMapping(value = "productos/por-categoria")
+    public ResponseEntity<Flux<Producto>> productosCategoria(@RequestParam String categoria) {
     return new ResponseEntity<>(productosService.productosCategoria(categoria), HttpStatus.OK);
     }
 
-        @GetMapping(value = "producto")
-    public ResponseEntity<Mono<Producto>> productosCodigo(@RequestParam("cod") int cod) {
+        @GetMapping(value = "productos/{cod}")
+    public ResponseEntity<Mono<Producto>> productosCodigo(@PathVariable/* @RequestParam("cod") */ int cod) {
         return new ResponseEntity<>(productosService.productoCodigo(cod), HttpStatus.OK);
     }
 
-            @PostMapping(value = "alta", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+            @PostMapping(value = "productos", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<Void>> altaProducto(@RequestBody Producto producto) {
         return new ResponseEntity<>(productosService.altaProducto(producto), HttpStatus.OK);
     }
-    @DeleteMapping(value = "eliminar")
-        public Mono<ResponseEntity<Producto>> eliminarProducto(@RequestParam("cod") int cod) {
+    @DeleteMapping(value = "productos/{cod}")
+        public Mono<ResponseEntity<Producto>> eliminarProducto(/* @RequestParam("cod") */@PathVariable int cod) {
             return productosService.eliminarProducto(cod)//Mono<Producto>
             .map(p->new ResponseEntity<>(p, HttpStatus.OK))//Mono<ResponseEntity<Producto>>
             .switchIfEmpty(Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND)));
     }
-@PutMapping(value = "actualizar")
-            public Mono<ResponseEntity<Producto>> actualizarProducto(@RequestParam("cod") int cod, @RequestParam("precio") double precio) {
+@PutMapping(value = "productos/{cod}")
+            public Mono<ResponseEntity<Producto>> actualizarProducto(@PathVariable/* @RequestParam("cod") */ int cod, @RequestParam("precio") double precio) {
             return productosService.actualizarPrecio(cod, precio)//Mono<Producto>
             .map(p->new ResponseEntity<>(p, HttpStatus.OK))//Mono<ResponseEntity<Producto>>
                         .switchIfEmpty(Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND)));
