@@ -2,6 +2,7 @@ package controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,10 +25,11 @@ public class ProductosController {
     @Autowired
     ProductosService productosService;
 
-    @GetMapping(value = "productos")
+@GetMapping(value = "productos", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<Producto>> productos() {
         return new ResponseEntity<>(productosService.catalogo(), HttpStatus.OK);
     }
+    
 
     @GetMapping(value = "productos/por-categoria")
     public ResponseEntity<Flux<Producto>> productosCategoria(@RequestParam String categoria) {
@@ -39,17 +41,17 @@ public class ProductosController {
         return new ResponseEntity<>(productosService.productoCodigo(cod), HttpStatus.OK);
     }
 
-            @PostMapping(value = "productos", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+            @PostMapping(value = "alta", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<Void>> altaProducto(@RequestBody Producto producto) {
         return new ResponseEntity<>(productosService.altaProducto(producto), HttpStatus.OK);
     }
-    @DeleteMapping(value = "productos/{cod}")
+    @DeleteMapping(value = "eliminar/{cod}")
         public Mono<ResponseEntity<Producto>> eliminarProducto(/* @RequestParam("cod") */@PathVariable int cod) {
             return productosService.eliminarProducto(cod)//Mono<Producto>
             .map(p->new ResponseEntity<>(p, HttpStatus.OK))//Mono<ResponseEntity<Producto>>
             .switchIfEmpty(Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND)));
     }
-@PutMapping(value = "productos/{cod}")
+@PutMapping(value = "actualizar/{cod}")
             public Mono<ResponseEntity<Producto>> actualizarProducto(@PathVariable/* @RequestParam("cod") */ int cod, @RequestParam("precio") double precio) {
             return productosService.actualizarPrecio(cod, precio)//Mono<Producto>
             .map(p->new ResponseEntity<>(p, HttpStatus.OK))//Mono<ResponseEntity<Producto>>
