@@ -8,12 +8,13 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 public class SecurityConfig {
 
-@Bean
-public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    return http
-        .csrf(csrf -> csrf.disable())
-        .authorizeExchange(ex -> ex.anyExchange().permitAll())
-        .cors(cors -> {}) // permite usar CorsConfig
-        .build();
-}
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        return http
+                .csrf(csrf -> csrf.disable())       // Desactivar CSRF
+                .formLogin(form -> form.disable())  // Desactivar login por form
+                .httpBasic(basic -> basic.disable())// Desactivar http basic
+                .authorizeExchange(ex -> ex.anyExchange().permitAll()) // Permitir todo
+                .build();
+    }
 }
