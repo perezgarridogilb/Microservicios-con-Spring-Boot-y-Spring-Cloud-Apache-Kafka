@@ -25,7 +25,7 @@ public class ProductosController {
     @Autowired
     ProductosService productosService;
 
-@GetMapping(value = "productos")
+@GetMapping(value = "productos", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<Producto>> productos() {
         return new ResponseEntity<>(productosService.catalogo(), HttpStatus.OK);
     }
