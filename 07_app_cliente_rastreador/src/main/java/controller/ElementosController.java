@@ -29,4 +29,8 @@ public class ElementosController {
         return "listado";
     }
 
+    @GetMapping(value = "/")
+public String inicio() {
+    return "inicio";
+}
 }
