@@ -12,12 +12,22 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 @Configuration
 public class SecurityConfig {
+	private AuthManager authenticationManager;
+	private SecurityContextRepository securityContextRepository;
+
+	public SecurityConfig(AuthManager authenticationManager, SecurityContextRepository securityContextRepository) {
+		this.authenticationManager = authenticationManager;
+		this.securityContextRepository = securityContextRepository;
+	}
+
 	@Bean
 	public MapReactiveUserDetailsService users() throws Exception{
 		List<UserDetails> users=List.of(
@@ -37,16 +47,21 @@ public class SecurityConfig {
 		return new MapReactiveUserDetailsService(users);
 	}
 	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+	}
+	@Bean
 	public SecurityWebFilterChain filter(ServerHttpSecurity http) throws Exception{
-		http.csrf(c->c.disable())
+		return http.csrf(c->c.disable())
+		.authenticationManager(authenticationManager)
+        .securityContextRepository(securityContextRepository)
 		.authorizeExchange(auth->
 					auth.pathMatchers(HttpMethod.POST, "/alta").hasAnyRole("ADMIN")
 					.pathMatchers(HttpMethod.DELETE,"/eliminar/**").hasAnyRole("ADMIN","OPERATOR")
 					.pathMatchers("/productos/**").authenticated()
 					.anyExchange().permitAll()
 				)
-		.httpBasic(Customizer.withDefaults());
-		return http.build();
+		.build();
 	}
 	
 }

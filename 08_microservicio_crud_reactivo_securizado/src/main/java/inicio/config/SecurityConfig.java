@@ -18,14 +18,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableReactiveMethodSecurity
 @Configuration
 public class SecurityConfig {
-	private AuthManager authenticatioManager;
-	private SecurityContextRepository securityContextRepository;
-
-	public SecurityConfig(AuthManager authenticatioManager, SecurityContextRepository securityContextRepository) {
-		this.authenticatioManager = authenticatioManager;
-		this.securityContextRepository = securityContextRepository;
-	}
-
 	@Bean
 	public MapReactiveUserDetailsService users() throws Exception{
 		List<UserDetails> users=List.of(
