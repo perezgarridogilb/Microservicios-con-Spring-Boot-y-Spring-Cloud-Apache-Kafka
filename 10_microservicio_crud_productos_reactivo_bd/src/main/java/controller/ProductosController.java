@@ -25,8 +25,11 @@ public class ProductosController {
     @Autowired
     ProductosService productosService;
 
-@GetMapping(value = "productos")
-    public ResponseEntity<Flux<Producto>> productos() {
+    @GetMapping(value = "productos")
+    public ResponseEntity<Flux<Producto>> productos(@RequestParam(required = false) Integer cod) {
+        if (cod != null) {
+            return new ResponseEntity<>(productosService.productoCodigo(cod).flux(), HttpStatus.OK);
+        }
         return new ResponseEntity<>(productosService.catalogo(), HttpStatus.OK);
     }
     
@@ -43,6 +46,7 @@ public class ProductosController {
 
             @PostMapping(value = "alta", consumes = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Mono<Void>> altaProducto(@RequestBody Producto producto) {
+                producto.setNuevo(true);
         return new ResponseEntity<>(productosService.altaProducto(producto), HttpStatus.OK);
     }
     @DeleteMapping(value = "eliminar/{cod}")
