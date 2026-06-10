@@ -1,0 +1,123 @@
+=== COMANDOS DE DIAGNÓSTICO Y SOLUCIÓN ===
+
+# 1. Verificar qué ocupa puerto 8000
+lsof -i :8000 2>/dev/null || echo "nada en puerto 8000"
+
+# 2. Listar recursos del proyecto
+ls src/main/resources/
+
+# 3. Buscar Maven Wrapper
+ls -la mvnw
+
+# 4. Matar proceso PHP que ocupaba puerto 8000
+kill 87021
+
+# 5. Iniciar app Spring Boot
+nohup ./mvnw spring-boot:run -DskipTests > /tmp/spring-app.log 2>&1 &
+
+# 6. Probar endpoint
+sleep 20 && curl -s http://localhost:8000/productos
+
+# 7. Revisar logs de la app
+tail -50 /tmp/spring-app.log
+tail -40 /tmp/spring-app2.log
+
+# 8. Verificar datos en MongoDB
+mongosh --quiet --eval '
+  use("products");
+  const docs = db.products.find().toArray();
+  print("Found " + docs.length + " documents:");
+  print(JSON.stringify(docs, null, 2));
+'
+
+# 9. Verificar tipo BSON del _id
+mongosh --quiet --eval '
+  use("products");
+  db.products.find().forEach(d => {
+    const bsonType = db.products.aggregate([
+      { $match: { _id: d._id } },
+      { $project: { _idType: { $type: "$_id" } } }
+    ]).toArray();
+    print("_id: " + d._id + " type: " + bsonType[0]._idType);
+  });
+'
+
+# 10. Insertar datos con tipo int correcto
+mongosh --quiet --eval '
+  use("products");
+  db.products.deleteMany({_id: {$in: [100, 200]}});
+  db.products.insertMany([
+    {_id: NumberInt(100), nombre: "pan", categoria: "Alimentación", precioUnitario: 1.1, stock: 10, _class: "model.Producto"},
+    {_id: NumberInt(200), nombre: "mesa", categoria: "hogar", precioUnitario: 90, stock: 3, _class: "model.Producto"}
+  ]);
+'
+
+# 11. Verificar todas las bases de datos
+mongosh --quiet --eval '
+  const dbs = db.adminCommand("listDatabases").databases;
+  dbs.forEach(d => {
+    const conn = connect("mongodb://localhost:27017/" + d.name);
+    const collections = conn.getCollectionNames();
+    collections.forEach(c => {
+      const count = conn.getCollection(c).countDocuments();
+      if (count > 0) print(d.name + "." + c + ": " + count + " docs");
+    });
+  });
+'
+
+# 12. Verificar compilación del modelo
+javap -verbose target/classes/model/Producto.class | grep -i "RuntimeVisibleAnnotations\|@Id"
+
+# 13. Forzar compilación limpia
+./mvnw clean compile -DskipTests -q
+
+# 14. Reconstruir y ejecutar con clean
+nohup ./mvnw clean spring-boot:run -DskipTests > /tmp/spring-app4.log 2>&1 &
+
+# 15. Verificar prefijo de propiedades en Spring Boot 4.0.6
+cd /tmp && jar xf ~/.m2/repository/org/springframework/boot/spring-boot-mongodb/4.0.6/spring-boot-mongodb-4.0.6.jar
+javap -verbose /tmp/org/springframework/boot/mongodb/autoconfigure/MongoProperties.class | grep -A5 "ConfigurationProperties"
+# RESULTADO: @ConfigurationProperties(value = "spring.mongodb")  ← NUEVO PREFIJO
+
+# 16. Verificar DEFAULT_URI
+javap -verbose /tmp/org/springframework/boot/mongodb/autoconfigure/MongoProperties.class | grep -A3 "DEFAULT_URI"
+# RESULTADO: mongodb://localhost/test  ← Por eso usaba BD test
+
+# 17. Test final
+curl -s http://localhost:8000/productos
+
+=== ARCHIVOS EDITADOS ===
+
+1. pom.xml
+   - Eliminado spring-boot-starter-webmvc (causaba 404)
+
+2. src/main/java/controller/ProductosController.java
+   - Cambiado ResponseEntity<Flux<Producto>> a Flux<Producto>
+   - Cambiado ResponseEntity<Mono<Producto>> a Mono<Producto>
+   - Eliminados imports no usados (ResponseEntity, HttpStatus, MediaType)
+
+3. src/main/java/model/Producto.java
+   - Agregado @Id en campo id
+   - Agregado import org.springframework.data.annotation.Id
+
+4. src/main/java/service/ProductosServiceImpl.java
+   - Corregido ProductosRepository → ProductoRepository
+   - Corregido import de controller.ProductosController → repository.ProductoRepository
+
+5. src/main/resources/application.properties
+   - Cambiado spring.data.mongodb.* → spring.mongodb.* (nuevo prefijo Spring Boot 4.0.6)
+   - Agregado spring.mongodb.database=products
+
+6. test.txt (este archivo)
+
+=== ARCHIVOS MOVIDOS ===
+De src/test/java/ → src/main/java/:
+  - controller/ProductosController.java
+  - service/ProductosService.java
+  - service/ProductosServiceImpl.java
+  - repository/ProductoRepository.java
+  - model/Producto.java
+
+=== TIEMPO ESTIMADO ===
+~30-40 minutos de diagnóstico y corrección
+Permitame que alguien más maneje el liderazgo para saber que alguien más quiera que lo maneje así

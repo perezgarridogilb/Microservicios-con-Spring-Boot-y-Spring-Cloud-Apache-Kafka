@@ -13,6 +13,7 @@ public interface  ProductoRepository extends ReactiveMongoRepository<Producto, I
     Flux<Producto> findByCategoria(String categoria);
     Mono<Void> deleteByNombre(String name);
 
+        // Elimina de la base de datos todos los documentos cuyo 'precioUnitario' sea MENOR QUE el primer parámetro de la función (?0)
  @DeleteQuery(value = "{'precioUnitario': {$1t:?0}}")
  Mono<Void> deletePrecio(double precioMax);
 }
