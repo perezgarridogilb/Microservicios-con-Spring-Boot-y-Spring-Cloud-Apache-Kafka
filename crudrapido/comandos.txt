@@ -1,0 +1,61 @@
+# ============================================================
+# Comandos ejecutados durante la sesión - crudrapido
+# ============================================================
+
+# Compilar sin errores (verificar código)
+./mvnw compile -q
+
+# Ejecutar con spring-boot-maven-plugin (falla con driver MySQL)
+./mvnw spring-boot:run -e
+./mvnw spring-boot:run -X 2>&1 | grep -E "(ERROR|Exception|Caused by|Error)"
+
+# Resolver dependencias
+./mvnw dependency:resolve -DincludeScope=runtime
+
+# Empaquetar WAR
+./mvnw package -DskipTests -q
+
+# Ver contenido del WAR
+jar tf target/crudrapido-0.0.1-SNAPSHOT.war | grep -E "application\.properties|WEB-INF/classes"
+jar tf target/crudrapido-0.0.1-SNAPSHOT.war | grep -i "application\|properties\|WEB-INF/classes/"
+jar tf target/crudrapido-0.0.1-SNAPSHOT.war WEB-INF/lib/ | grep mysql
+
+# Extraer properties del WAR
+unzip -p target/crudrapido-0.0.1-SNAPSHOT.war WEB-INF/classes/application.properties
+
+# Verificar classpath en runtime
+./mvnw dependency:build-classpath -DincludeScope=runtime -Dmdep.outputFile=/tmp/cp.txt
+
+# Árbol de dependencias (MySQL)
+./mvnw dependency:tree -Dincludes=com.mysql
+
+# Descompilar clases de Spring Boot para debug
+cd /tmp
+jar xf ~/.m2/repository/org/springframework/boot/spring-boot-jdbc/4.0.7/spring-boot-jdbc-4.0.7.jar
+javap -c -p org/springframework/boot/jdbc/autoconfigure/DataSourceProperties.class 2>&1 | grep -A 30 "findDriverClassName"
+javap -c -p org/springframework/boot/jdbc/autoconfigure/DataSourceProperties.class 2>&1 | grep -A 20 "driverClassIsLoadable"
+javap -c -p org/springframework/boot/jdbc/autoconfigure/PropertiesJdbcConnectionDetails.class 2>&1 | grep -A 10 "getDriverClassName"
+
+# Descompilar ClassUtils
+jar xf ~/.m2/repository/org/springframework/spring-core/7.0.8/spring-core-7.0.8.jar
+javap -c -p org/springframework/util/ClassUtils.class 2>&1 | grep -B2 -A 20 "getDefaultClassLoader"
+
+# Trace de carga de clases MySQL
+java -XX:+TraceClassLoading -jar target/crudrapido-0.0.1-SNAPSHOT.war 2>&1 | grep "com.mysql"
+java -verbose:class -jar target/crudrapido-0.0.1-SNAPSHOT.war 2>&1 | grep mysql
+
+# Ejecutar WAR directamente con java -jar
+java -jar target/crudrapido-0.0.1-SNAPSHOT.war
+java -jar target/crudrapido-0.0.1-SNAPSHOT.war --debug 2>&1 | grep -i "driver\|class.*load\|mysql\|datasource"
+
+# Ver MANIFEST del WAR
+unzip -p target/crudrapido-0.0.1-SNAPSHOT.war META-INF/MANIFEST.MF
+
+# Ver classpath.idx del WAR
+unzip -p target/crudrapido-0.0.1-SNAPSHOT.war WEB-INF/classpath.idx
+
+# Ver contenido de archivo properties
+cat src/main/resources/application.properties
+
+# Rebuild completo con clean
+./mvnw clean package -DskipTests -q
