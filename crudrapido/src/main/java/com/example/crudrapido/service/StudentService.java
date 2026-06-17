@@ -6,10 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.crudrapido.dto.request.StudentRequestDTO;
 import com.example.crudrapido.model.Student;
 import com.example.crudrapido.repository.StudentRepository;
-
-import jakarta.validation.ValidationException;
 
 @Service
 public class StudentService {
@@ -24,10 +23,13 @@ public class StudentService {
         return studentRepository.findById(id);
     }
 
-    public Student saveOrUpdate(Student student) {
-        if (studentRepository.existsByEmail(student.getEmail())) {
-            throw new ValidationException("El email " + student.getEmail() + " ya existe");
-        }
+    public Student saveOrUpdate(StudentRequestDTO request) {
+        Student student = new Student();
+        student.setFirstName(request.getFirstName());
+        student.setLastName(request.getLastName());
+        student.setEmail(request.getEmail());
+                student.setStatus(request.getStatus());
+
         return studentRepository.save(student);
     }
 

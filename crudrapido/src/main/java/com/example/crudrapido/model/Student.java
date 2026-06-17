@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +15,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 // @Data === getters, setters, toString, equals, hashCode automáticos (como los accessors de Eloquent)
@@ -35,36 +38,41 @@ public class Student {
 
     // @NotBlank === 'required'
     // @Email === 'email'
-    // @Column(name = "email_address", unique = true) === $table->string('email')->unique()
+    // @Column(name = "email_address", unique = true) ===
+    // $table->string('email')->unique()
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     @Column(name = "email_address", unique = true)
     private String email;
 
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     private LocalDateTime createdAt;
 
-private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
-@Column(name = "date_event")
+    @Column(name = "date_event")
     private LocalDateTime dateEvent;
 
     private String operation;
 
-// @PrePersist === static::creating() en Laravel (booted)
-// @PreUpdate === static::updating() en Laravel (booted)
-@PrePersist
-protected void inicializarFechas() {
-    createdAt = LocalDateTime.now();
-    updatedAt = LocalDateTime.now();
-    audit("INSERT");
-}
+    // @PrePersist === static::creating() en Laravel (booted)
+    // @PreUpdate === static::updating() en Laravel (booted)
+    @PrePersist
+    protected void inicializarFechas() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        audit("INSERT");
+    }
 
-@PreUpdate
-protected void actualizarFechaActualizacion() {
-    updatedAt = LocalDateTime.now();
-}
+    @PreUpdate
+    protected void actualizarFechaActualizacion() {
+        updatedAt = LocalDateTime.now();
+    }
 
-public void audit(String operation) {
+    public void audit(String operation) {
         setOperation(operation);
         setDateEvent(LocalDateTime.now());
     }
