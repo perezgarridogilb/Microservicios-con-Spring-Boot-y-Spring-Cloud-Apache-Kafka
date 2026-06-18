@@ -13,7 +13,7 @@ public class AtentionRequestDto {
     private LocalDateTime fecha;
 
     @NotBlank(message = "El motivo de la atención es requerido")
-    private String motivo;
+    private String atention;
 
 @NotNull
 private Long patientId;

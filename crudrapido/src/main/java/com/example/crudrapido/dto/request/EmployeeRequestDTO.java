@@ -1,19 +1,21 @@
 package com.example.crudrapido.dto.request;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import com.example.crudrapido.model.Rol;
+import com.example.crudrapido.model.Status;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class EmployeeRequestDTO {
 
-    @NotBlank(message = "First name is required")
-    private String firstName;
+    @NotNull(message = "La persona es obligatoria")
+    private Long studentId;
 
-    @NotBlank(message = "Last name is required")
-    private String lastName;
+    @NotNull(message = "El rol es obligatorio")
+    private Rol rol;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
-    private String email;
+    @NotNull(message = "El estado es obligatorio")
+    private Status estado;
+
 }

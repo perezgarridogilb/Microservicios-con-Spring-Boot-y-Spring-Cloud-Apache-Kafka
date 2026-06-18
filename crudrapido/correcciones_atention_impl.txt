@@ -1,0 +1,84 @@
+CORRECCIONES ASOCIADAS A AtentionServiceImpl.java
+====================================================
+
+Se corrigieron 3 archivos en total para que AtentionServiceImpl.java compile:
+AtentionServiceImpl.java, AtentionService.java, EmployeeService.java (ex EmpleadoService.java)
+
+---
+
+1) src/main/java/com/example/crudrapido/service/impl/AtentionServiceImpl.java
+----------------------------------------------------------------------------
+
+ Línea  (original)  |  Cambio
+--------------------|-----------------------------------------------------------
+  3                 | import java.io.ObjectInputFilter.Status;
+                    | → ELIMINADO (reemplazado por model.Status en línea 17)
+  6                 | import org.springframework.boot.data.autoconfigure.web.DataWebProperties.Pageable;
+                    | → import org.springframework.data.domain.Pageable;
+  9                 | import com.example.crudrapido.dto.request.AtencionRequestDto;
+                    | → import com.example.crudrapido.dto.request.AtentionRequestDto;
+ 16                 | import com.example.crudrapido.model.Employee;
+                    | → ELIMINADO (no se usaba)
+ 19-20              | import com.example.crudrapido.repository.EmployeeRepository;
+                    | → ELIMINADO (no se usaba)
+ 33                 | private final EmployeeRepository employeeRepository;
+                    | → ELIMINADO (ya no se inyectaba)
+ 39                 | public AtentionResponseDTO crearAtention(AtencionRequestDto requestDto)
+                    | → AtentionRequestDto
+ 49                 | patientRepository.findById(requestDto.getStudentId())
+                    | → requestDto.getPatientId()  (el DTO tiene patientId, no studentId)
+ 53                 | atention.setStudent(patient);
+                    | → ELIMINADO (el mapper ya mapea patientId → patient.id)
+116                 | actualizarAtention(Long id, AtencionRequestDto requestDto)
+                    | → AtentionRequestDto
+
+
+2) src/main/java/com/example/crudrapido/service/AtentionService.java
+---------------------------------------------------------------------
+
+ Línea  (original)  |  Cambio
+--------------------|-----------------------------------------------------------
+  3                 | import java.io.ObjectInputFilter.Status;
+                    | → ELIMINADO
+  6                 | import org.springframework.boot.data.autoconfigure.web.DataWebProperties.Pageable;
+                    | → import org.springframework.data.domain.Pageable;
+  8                 | import com.example.crudrapido.dto.request.AtencionRequestDto;
+                    | → import com.example.crudrapido.dto.request.AtentionRequestDto;
+ 10 (nueva)         | import com.example.crudrapido.model.Status;  (AGREGADO)
+ 14                 | crearAtention(AtencionRequestDto requestDto)
+                    | → AtentionRequestDto
+ 31                 | actualizarAtention(Long id, AtencionRequestDto requestDto)
+                    | → AtentionRequestDto
+
+
+3) src/main/java/com/example/crudrapido/service/EmpleadoService.java
+   → RENOMBRADO A: EmployeeService.java
+---------------------------------------------------------------------
+
+ Línea  (original)  |  Cambio
+--------------------|-----------------------------------------------------------
+  1                 | package com.latecnologiaavanza.service;
+                    | → package com.example.crudrapido.service;
+  3-7               | (imports reorganizados)
+  9                 | import com.latecnologiaavanza.dto.request.EmpleadoRequestDto;
+                    | → import com.example.crudrapido.dto.request.EmployeeRequestDTO;
+ 10                 | import com.latecnologiaavanza.dto.response.EmpleadoResponseDto;
+                    | → import com.example.crudrapido.dto.response.EmployeeResponseDTO;
+ 12                 | public interface EmpleadoService
+                    | → public interface EmployeeService
+ 14                 | EmpleadoResponseDto crearEmpleado(EmpleadoRequestDto requestDto)
+                    | → EmployeeResponseDTO createEmployee(EmployeeRequestDTO requestDto)
+ 16                 | List<EmpleadoResponseDto> listarEmpleados()
+                    | → List<EmployeeResponseDTO> listAll()
+ 18                 | Page<EmpleadoResponseDto> listarPorEstado(String estado, Pageable pageable)
+                    | → Page<EmployeeResponseDTO> listByStatus(String status, Pageable pageable)
+ 20                 | EmpleadoResponseDto actualizarEmpleado(Long id, EmpleadoRequestDto dto)
+                    | → EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto)
+ 22                 | void eliminarEmpleado(Long id)
+                    | → void deleteEmployee(Long id)
+ 24                 | Optional<EmpleadoResponseDto> buscarPorId(Long id)
+                    | → Optional<EmployeeResponseDTO> findById(Long id)
+
+Nota: EmployeeService.java estaba en el package incorrecto (latecnologiaavanza)
+y referenciaba DTOs españoles que no existían, lo que bloqueaba la compilación
+de AtentionServiceImpl.java al resolver dependencias transitivas.

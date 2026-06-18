@@ -1,6 +1,9 @@
 package com.example.crudrapido.model;
 
 public enum Status {
-    ACTIVE,
-    INACTIVE
+    ACTIVO,
+    INACTIVO,
+    PENDIENTE,
+    FINALIZADO,
+    CANCELADO
 }
