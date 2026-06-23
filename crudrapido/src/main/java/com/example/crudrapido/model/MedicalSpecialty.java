@@ -1,5 +1,7 @@
 package com.example.crudrapido.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -23,6 +25,7 @@ public class MedicalSpecialty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false,
         foreignKey = @ForeignKey(name = "FK_medical_specialty_employee"))
@@ -32,6 +35,7 @@ public class MedicalSpecialty {
      * Este nombre de variable ("employee") es el que usa mappedBy = "employee" en la otra clase.
        A su vez, Hibernate usa esta configuración para crear físicamente la columna "employee_id"
     */
+   @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "specialty_id", nullable = false,
         foreignKey = @ForeignKey(name = "FK_medical_specialty_specialty"))

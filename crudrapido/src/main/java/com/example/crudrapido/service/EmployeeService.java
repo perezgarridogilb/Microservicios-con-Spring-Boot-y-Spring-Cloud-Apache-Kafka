@@ -15,7 +15,7 @@ public interface EmployeeService {
 
      List<EmployeeResponseDTO> listarEmpleados();
 
-    List<EmployeeResponseDTO> listAll();
+    // List<EmployeeResponseDTO> listAll();
 
     Page<EmployeeResponseDTO> listaPorStatus(String status, Pageable pageable);
 

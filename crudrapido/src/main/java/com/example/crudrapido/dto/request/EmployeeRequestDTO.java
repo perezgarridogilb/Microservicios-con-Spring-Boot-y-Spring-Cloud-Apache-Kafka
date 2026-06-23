@@ -16,6 +16,6 @@ public class EmployeeRequestDTO {
     private Rol rol;
 
     @NotNull(message = "El estado es obligatorio")
-    private Status estado;
+    private Status status;
 
 }

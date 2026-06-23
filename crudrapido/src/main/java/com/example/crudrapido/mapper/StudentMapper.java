@@ -12,10 +12,6 @@ public interface StudentMapper {
     Student toEntity(StudentResponseDTO dto);
 
     StudentResponseDTO toResponse(Student entity);
-
-    void updateEntity(@MappingTarget Student entity, StudentResponseDTO dto);
-}
-
 /*
   EQUIVALENCIA EXACTA EN LARAVEL:
   
@@ -29,3 +25,7 @@ public interface StudentMapper {
      En Java se ve como un Objeto:  dto.getName() -> "Gilberto"
      En Laravel se ve como un Array: $dto['name'] -> "Gilberto"
 */
+
+    void updateEntity(@MappingTarget Student entity, StudentResponseDTO dto);
+}
+

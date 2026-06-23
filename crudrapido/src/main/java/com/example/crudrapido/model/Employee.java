@@ -3,6 +3,8 @@ package com.example.crudrapido.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -33,8 +35,9 @@ public class Employee {
     private Rol rol;
 
     @Enumerated(EnumType.STRING)
-    private Status estado;
+    private Status status;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<MedicalSpecialty> especialides = new HashSet<>();
+    private Set<MedicalSpecialty> specialties = new HashSet<>();
 }

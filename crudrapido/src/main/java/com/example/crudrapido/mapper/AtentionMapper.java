@@ -13,9 +13,12 @@ import com.example.crudrapido.model.Atention;
      config = MapperConfiguration.class,
      uses = {StudentMapper.class, EmployeeMapper.class}) // Anidación de Recursos: 'student' => new StudentResource(...)
 public interface AtentionMapper {
-
+// source = "fecha": Es el campo que viene del Request (el DTO).
+    @Mapping(source = "fecha", target = "date")
     @Mapping(source = "employeeId", target = "employee.id")
     @Mapping(source = "patientId", target = "patient.id")
+
+    // La función que sí llama a los otros mappers en tu configuración es toResponse(Atention entity).
     Atention toEntity(AtentionRequestDto dto);
     /*
        Equivale en Laravel a preparar un modelo nuevo con sus relaciones:
@@ -34,6 +37,7 @@ public interface AtentionMapper {
        return $atencion;
     */
 
+   //  @Mapping(source = "patient.student", target = "student")
     AtentionResponseDTO toResponse(Atention entity);
     /*
        Equivale en Laravel a un API Resource:
@@ -43,11 +47,12 @@ public interface AtentionMapper {
            'date' => $this->date,
            'atention' => $this->atention,
            'status' => $this->status,
-           'student' => new StudentResource($this->student),   // Resuelto por el "uses = StudentMapper.class"
+           'student' => new StudentResource($this->patient.student), // Resuelto por el "uses = StudentMapper.class"
            'employee' => new EmployeeResource($this->employee) // Resuelto por el "uses = EmployeeMapper.class"
        ];
     */
 
+    @Mapping(source = "fecha", target = "date")
     @Mapping(source = "patientId", target = "patient.id")
     @Mapping(source = "employeeId", target = "employee.id")
     void updateEntity(@MappingTarget Atention entity, AtentionRequestDto dto);

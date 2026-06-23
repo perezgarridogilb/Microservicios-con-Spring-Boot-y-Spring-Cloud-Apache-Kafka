@@ -16,6 +16,6 @@ public interface EmployeeMapper {
 
     EmployeeResponseDTO toResponse(Employee employee);
 
-        @Mapping(source = "studentId", target = "student.id")
+    @Mapping(source = "studentId", target = "student.id")
     void updateEntity(@MappingTarget Employee entity, EmployeeRequestDTO dto);
 }
