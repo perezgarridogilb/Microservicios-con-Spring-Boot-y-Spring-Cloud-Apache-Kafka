@@ -86,6 +86,13 @@ public class AtentionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+        @Operation(summary = "Listar todas las atenciones (paginadas)")
+    @GetMapping
+    public ResponseEntity<Page<AtentionResponseDTO>> listarTodas(@ParameterObject Pageable pageable) {
+        log.info("Listando todas las atenciones, page={} size={}", pageable.getPageNumber(), pageable.getPageSize());
+        return ResponseEntity.ok(atentionService.listarTodas(pageable));
+    }
+
 
     @Operation(summary = "Listar atenciones por rango de fechas (paginadas)")
 /**

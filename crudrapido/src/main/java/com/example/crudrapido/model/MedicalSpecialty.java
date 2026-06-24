@@ -35,6 +35,8 @@ public class MedicalSpecialty {
      * Este nombre de variable ("employee") es el que usa mappedBy = "employee" en la otra clase.
        A su vez, Hibernate usa esta configuración para crear físicamente la columna "employee_id"
     */
+   
+   // Evita la recursión infinita al serializar la relación bidireccional; este lado de la relación no se incluye en la respuesta JSON
    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "specialty_id", nullable = false,

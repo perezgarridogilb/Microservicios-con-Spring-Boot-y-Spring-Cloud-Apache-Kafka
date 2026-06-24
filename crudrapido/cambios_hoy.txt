@@ -1,0 +1,69 @@
+CAMBIOS REALIZADOS - 23/Jun/2026
+===================================
+
+ARCHIVOS CREADOS
+----------------
+1. src/main/java/com/example/crudrapido/service/impl/AuthServiceImpl.java
+   - Implementacion de AuthService con registrar() y login()
+   - Password hashing con SHA-256 + Base64
+   - Token simple generado con Base64
+
+2. src/main/java/com/example/crudrapido/service/impl/EmployeeServiceImpl.java
+   - Implementacion de EmployeeService
+   - CRUD completo + listado por status con Pageable
+
+ARCHIVOS MODIFICADOS
+--------------------
+3. src/main/java/com/example/crudrapido/controller/AtentionController.java
+   - Fix import: io.swagger.v3.oas.annotations.parameters.RequestBody
+     → org.springframework.web.bind.annotation.RequestBody
+   - Agregado import org.springdoc.core.annotations.ParameterObject
+
+4. src/main/java/com/example/crudrapido/controller/EmpleadoController.java
+   - Fix method call: listPorStatus() → listaPorStatus()
+
+5. src/main/java/com/example/crudrapido/service/AuthService.java
+   - Fix tipo parametro login(): AuthRegisterRequestDto → AuthLoginRequestDTO
+   - Agregado import AuthLoginRequestDTO
+
+6. src/main/java/com/example/crudrapido/repository/UserRepository.java
+   - Agregados metodos: findByUser(String), existsByUser(String)
+
+7. src/main/java/com/example/crudrapido/model/Employee.java
+   - Renamed: estado → status
+   - Renamed: especialides → specialties
+
+8. src/main/java/com/example/crudrapido/dto/request/EmployeeRequestDTO.java
+   - Renamed: estado → status
+
+9. src/main/java/com/example/crudrapido/dto/request/AuthLoginRequestDTO.java
+   (modificacion menor, formato)
+
+10. src/main/java/com/example/crudrapido/model/MedicalSpecialty.java
+    (modificacion menor, formato)
+
+11. src/main/java/com/example/crudrapido/mapper/AtentionMapper.java
+    - Agregado @Mapping(source = "fecha", target = "date") en toEntity()
+    - Agregado @Mapping(source = "patient.student", target = "student") en toResponse()
+    - Agregado @Mapping(source = "fecha", target = "date") en updateEntity()
+
+12. src/main/java/com/example/crudrapido/service/EmployeeService.java
+    (modificacion menor)
+
+13. src/main/resources/application.properties
+    - ddl-auto cambiado: update ↔ create-drop varias veces
+    - Actual: spring.jpa.hibernate.ddl-auto=update
+
+14. pom.xml
+    - Agregada dependencia: springdoc-openapi-starter-webmvc-ui 2.8.6
+
+ARCHIVOS ELIMINADOS
+-------------------
+15. src/main/java/com/example/crudrapido/service/impl/PacienteServiceImpl.java
+    - Contenido legacy con referencias al package com.latecnologiaavanza
+
+---
+SERVICIOS QUE AUN FALTAN (no arranca la app sin ellos):
+- PatientServiceImpl → implementa PatientService
+- StudentServiceImpl (StudentService ya existe como clase @Service)
+- UserServiceImpl (UserService ya existe como clase @Service)

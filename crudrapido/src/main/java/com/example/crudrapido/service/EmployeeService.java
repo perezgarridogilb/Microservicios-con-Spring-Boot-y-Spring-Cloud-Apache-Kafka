@@ -13,11 +13,11 @@ public interface EmployeeService {
 
     EmployeeResponseDTO createEmployee(EmployeeRequestDTO requestDto);
 
-     List<EmployeeResponseDTO> listarEmpleados();
+     List<EmployeeResponseDTO> listarEmployees();
 
     // List<EmployeeResponseDTO> listAll();
 
-    Page<EmployeeResponseDTO> listaPorStatus(String status, Pageable pageable);
+    Page<EmployeeResponseDTO> listarPorStatus(String status, Pageable pageable);
 
     EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto);
 
