@@ -1,69 +1,82 @@
-CAMBIOS REALIZADOS - 23/Jun/2026
-===================================
+ARCHIVOS MODIFICADOS HOY — 2026-06-25
+======================================
 
-ARCHIVOS CREADOS
-----------------
-1. src/main/java/com/example/crudrapido/service/impl/AuthServiceImpl.java
-   - Implementacion de AuthService con registrar() y login()
-   - Password hashing con SHA-256 + Base64
-   - Token simple generado con Base64
+1. AuthServiceImpl.java
+   Ruta: src/main/java/com/example/crudrapido/service/impl/AuthServiceImpl.java
+   Cambios:
+   - Cambiado import de `src/main/java/com/example/crudrapido/security/JwtUtil.java`
+     a `com.example.crudrapido.security.JwtUtil` (import correcto de Java)
+   - Agregados imports: JwtUtil, HttpStatus, PasswordEncoder, ResponseStatusException,
+     Employee, Patient, Rol, EmployeeRepository, PatientRepository
+   - Eliminados imports: MessageDigest, NoSuchAlgorithmException, Base64
+   - Eliminado campo `AuthenticationManager` (ya no se usa)
+   - Agregados campos: PatientRepository, EmployeeRepository, PasswordEncoder, JwtUtil
+   - `registrar()`: cambiado `hashPassword()` por `passwordEncoder.encode()`
+   - `login()`: ahora busca usuario por `findByUser`, verifica password con
+     `passwordEncoder.matches()`, determina rol (PACIENTE o desde Employee),
+     genera token JWT con `jwtUtil.generateToken()`
+   - Eliminados métodos muertos: `hashPassword()`, `verifyPassword()`, `generateToken()`
 
-2. src/main/java/com/example/crudrapido/service/impl/EmployeeServiceImpl.java
-   - Implementacion de EmployeeService
-   - CRUD completo + listado por status con Pageable
+2. SecurityConfig.java
+   Ruta: src/main/java/com/example/crudrapido/security/SecurityConfig.java
+   Cambios:
+   - Agregado import: HttpMethod, DaoAuthenticationProvider
+   - Agregado bean `authenticationProvider()` que crea un `DaoAuthenticationProvider`
+     con el `CustomUserDetailsService` y `PasswordEncoder` (BCrypt)
+   - El `authenticationManager` bean se mantiene con `AuthenticationConfiguration`
 
-ARCHIVOS MODIFICADOS
---------------------
-3. src/main/java/com/example/crudrapido/controller/AtentionController.java
-   - Fix import: io.swagger.v3.oas.annotations.parameters.RequestBody
-     → org.springframework.web.bind.annotation.RequestBody
-   - Agregado import org.springdoc.core.annotations.ParameterObject
+3. AtentionController.java
+   Ruta: src/main/java/com/example/crudrapido/controller/AtentionController.java
+   Cambios:
+   - Agregados imports: PreAuthorize, Authentication, SecurityContext, SecurityContextHolder
+   - Cambiado campo `StudentService patientService` a `PatientService patientService`
+   - Agregado endpoint GET `/mias` con `@PreAuthorize("hasRole('PACIENTE')")`
+     que llama a `atentionService.listarAtentionsDelPacienteAutenticado()`
 
-4. src/main/java/com/example/crudrapido/controller/EmpleadoController.java
-   - Fix method call: listPorStatus() → listaPorStatus()
+4. application.properties
+   Ruta: src/main/resources/application.properties
+   Cambios:
+   - Agregadas propiedades JWT:
+     jwt.secret=ngOP0sYyzr5a+fdqiQ3A9m8GLkG0+k88IzAb+l+Gj/Y=
+     jwt.expirationMs=86400000
 
-5. src/main/java/com/example/crudrapido/service/AuthService.java
-   - Fix tipo parametro login(): AuthRegisterRequestDto → AuthLoginRequestDTO
-   - Agregado import AuthLoginRequestDTO
 
-6. src/main/java/com/example/crudrapido/repository/UserRepository.java
-   - Agregados metodos: findByUser(String), existsByUser(String)
+ARCHIVOS NUEVOS (CREADOS AYER, SIN MODIFICAR HOY)
+==================================================
+Estos archivos ya existían en src/main/java/com/example/crudrapido/security/
+(creados el 24 de junio, no fueron modificados hoy):
 
-7. src/main/java/com/example/crudrapido/model/Employee.java
-   - Renamed: estado → status
-   - Renamed: especialides → specialties
+5. JwtUtil.java
+   - Componente Spring con @Value para jwt.secret y jwt.expirationMs
+   - generateToken(String nombre, Rol rol) — genera JWT con subject+rol
+   - getUsuarioFromToken(String token) — extrae subject del token
+   - validateToken(String token) — valida firma y expiración
+   - getSigningKey() — construye SecretKey desde Base64
 
-8. src/main/java/com/example/crudrapido/dto/request/EmployeeRequestDTO.java
-   - Renamed: estado → status
+6. CustomUserDetailsService.java
+   - Implementa UserDetailsService
+   - loadUserByUsername(): busca User, determina rol (PACIENTE o desde Employee),
+     retorna org.springframework.security.core.userdetails.User
 
-9. src/main/java/com/example/crudrapido/dto/request/AuthLoginRequestDTO.java
-   (modificacion menor, formato)
+7. JwtAuthenticationFilter.java
+   - Extiende OncePerRequestFilter
+   - doFilterInternal(): extrae token Bearer, valida, carga UserDetails,
+     settea SecurityContext
 
-10. src/main/java/com/example/crudrapido/model/MedicalSpecialty.java
-    (modificacion menor, formato)
 
-11. src/main/java/com/example/crudrapido/mapper/AtentionMapper.java
-    - Agregado @Mapping(source = "fecha", target = "date") en toEntity()
-    - Agregado @Mapping(source = "patient.student", target = "student") en toResponse()
-    - Agregado @Mapping(source = "fecha", target = "date") en updateEntity()
-
-12. src/main/java/com/example/crudrapido/service/EmployeeService.java
-    (modificacion menor)
-
-13. src/main/resources/application.properties
-    - ddl-auto cambiado: update ↔ create-drop varias veces
-    - Actual: spring.jpa.hibernate.ddl-auto=update
-
-14. pom.xml
-    - Agregada dependencia: springdoc-openapi-starter-webmvc-ui 2.8.6
-
-ARCHIVOS ELIMINADOS
--------------------
-15. src/main/java/com/example/crudrapido/service/impl/PacienteServiceImpl.java
-    - Contenido legacy con referencias al package com.latecnologiaavanza
-
----
-SERVICIOS QUE AUN FALTAN (no arranca la app sin ellos):
-- PatientServiceImpl → implementa PatientService
-- StudentServiceImpl (StudentService ya existe como clase @Service)
-- UserServiceImpl (UserService ya existe como clase @Service)
+ESTADO ACTUAL DE LA APLICACIÓN
+===============================
+- Compilación: OK (mvn compile exitoso)
+- Runtime: El login de juanp2 falla porque student_id=2 no tiene registro
+  en la tabla employees ni patients. Se necesita crear un Employee o Patient
+  para ese estudiante.
+- Endpoints disponibles:
+  POST /api/auth/registrar  — Registrar usuario (BCrypt)
+  POST /api/auth/login      — Login (retorna JWT)
+  GET  /api/atenciones/mias — Atenciones del paciente autenticado
+  POST /api/atenciones      — Crear atención
+  GET  /api/atenciones      — Listar atenciones (paginado)
+  GET  /api/atenciones/fecha — Por rango de fechas
+  GET  /api/atenciones/{id}  — Por ID
+  PUT  /api/atenciones/{id}  — Actualizar
+  DELETE /api/atenciones/{id} — Eliminar

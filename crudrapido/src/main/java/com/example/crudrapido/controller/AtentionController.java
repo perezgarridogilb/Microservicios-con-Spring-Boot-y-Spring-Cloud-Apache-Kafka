@@ -8,6 +8,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.crudrapido.dto.request.AtentionRequestDto;
 import com.example.crudrapido.dto.response.AtentionResponseDTO;
 import com.example.crudrapido.service.AtentionService;
-import com.example.crudrapido.service.StudentService;
+import com.example.crudrapido.service.PatientService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +42,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class AtentionController {
 
     private final AtentionService atentionService;
-    private final StudentService patientService;
+    private final PatientService patientService;
 
     @Operation(summary = "Crear una nueva atención médica")
     @ApiResponses({
@@ -46,6 +50,20 @@ public class AtentionController {
             @ApiResponse(responseCode = "400", description = "Request Válido"),
             @ApiResponse(responseCode = "404", description = "Paciente o empleado no encontado")
     })
+
+    @GetMapping("/mias")
+    @PreAuthorize("hasRole('PACIENTE')")
+    public ResponseEntity<Page<AtentionResponseDTO>> 
+    listarAtentionsMias(@ParameterObject Pageable pageable) {
+        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    
+    log.info("Listado de atenciones para el usuario: {}", username);
+    
+    // Llamada directa al servicio
+    Page<AtentionResponseDTO> response = atentionService.listarAtentionsDelPacienteAutenticado(username, pageable);
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * EQUIVALENCIA DE FIRMA Y TIPADO (Spring Boot vs Laravel)

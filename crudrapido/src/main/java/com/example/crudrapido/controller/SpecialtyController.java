@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import com.example.crudrapido.dto.request.SpecialtyRequestDTO;
 import com.example.crudrapido.dto.response.SpecialtyResponseDTO;
 import com.example.crudrapido.service.SpecialtyService;
